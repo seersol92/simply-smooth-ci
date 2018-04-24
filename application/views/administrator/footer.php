@@ -56,7 +56,30 @@
     <script src="<?php echo base_url(); ?>admintemplate/bower_components/datatables.net-responsive/js/dataTables.responsive.min.js"></script>
     <script src="<?php echo base_url(); ?>admintemplate/bower_components/datatables.net-responsive-bs4/js/responsive.bootstrap4.min.js"></script>
     <script src="<?php echo base_url(); ?>admintemplate/assets/pages/data-table/js/data-table-custom.js"></script>
-    
+    <script src="<?php echo base_url(); ?>assets/js/nicEdit.js" type="text/javascript"></script> 
+<script type="text/javascript">
+    jQuery(document).ready(function($){
+        $('#temp_type').on('change', function (e) {
+            var selected_type = this.value;
+            if(selected_type == 2) {
+                $('#time_delay_div').show();
+            }else {
+                $('#time_delay_div').hide();
+
+            }
+        })
+
+        $('#keywords').on('change', function (e) {
+            var keywords = this.value;
+            $('.nicEdit-main').append(keywords);
+        })
+    });
+    //<![CDATA[
+    bkLib.onDomLoaded(function() {
+            new nicEditor({fullPanel : true}).panelInstance('email_content');
+    });
+//]]>
+</script>
      <script>
         CKEDITOR.replace( 'editor1' );
     </script>   

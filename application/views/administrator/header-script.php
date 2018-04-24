@@ -2,7 +2,7 @@
 <html lang="en">
 
 <head>
-    <title>Administrator - Login</title>
+    <title>Simply Smooth - Admin-Panel</title>
 
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">

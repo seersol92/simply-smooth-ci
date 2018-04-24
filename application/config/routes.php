@@ -85,6 +85,14 @@ $route['administrator/testimonials/add'] = 'administrator/add_testimonial';
 $route['administrator/testimonials/list'] = 'administrator/list_testimonial';
 $route['administrator/testimonials/update/(:any)'] = 'administrator/update_testimonial/(:any)';
 
+$route['administrator/email-management'] = 'administrator/emailTemplates';
+$route['administrator/new-template'] = 'administrator/addTemplate';
+$route['administrator/add-template'] = 'administrator/addNewTemplate';
+$route['administrator/delete-template/(:num)'] = 'email/deleteTemplate/$1';
+$route['administrator/select-template/(:any)'] = 'member/selectEmailTemplate/$1';
+$route['administrator/compose-email'] = 'member/composeEmail';
+$route['administrator/send-email'] = 'member/sendEmail';
+
 $route['(:any)'] = 'pages/view/$1';
 $route['404_override'] = '';
 $route['translate_uri_dashes'] = FALSE;

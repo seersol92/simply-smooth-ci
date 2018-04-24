@@ -1294,67 +1294,139 @@
 
 		//forget password functions start
 		public function forget_password_mail(){
-    $this->load->library('form_validation');
-    $this->form_validation->set_rules('email', 'Email', 'required|trim|xss_clean|callback_validate_credentials');
+				$this->load->library('form_validation');
+				$this->form_validation->set_rules('email', 'Email', 'required|trim|xss_clean|callback_validate_credentials');
 
-            //check if email is in the database
-        $this->load->model('Administrator_Model');
-        if($this->Administrator_Model->email_exists()){
-            //$them_pass is the varible to be sent to the user's email
-            $temp_pass = md5(uniqid());
-            //send email with #temp_pass as a link
-            $this->load->library('email', array('mailtype'=>'html'));
-            $this->email->from('admin1234567@gmail.com', "Site");
-            $this->email->to($this->input->post('email'));
-            $this->email->subject("Reset your Password");
+					//check if email is in the database
+				$this->load->model('Administrator_Model');
+				if($this->Administrator_Model->email_exists()){
+					//$them_pass is the varible to be sent to the user's email
+					$temp_pass = md5(uniqid());
+					//send email with #temp_pass as a link
+					$this->load->library('email', array('mailtype'=>'html'));
+					$this->email->from('admin1234567@gmail.com', "Site");
+					$this->email->to($this->input->post('email'));
+					$this->email->subject("Reset your Password");
 
-            $message = "<p>This email has been sent as a request to reset our password</p>";
-            $message .= "<p><a href='".base_url()."administrator/reset-password/$temp_pass'>Click here </a>if you want to reset your password,
-                        if not, then ignore</p>";
-            $this->email->message($message);
+					$message = "<p>This email has been sent as a request to reset our password</p>";
+					$message .= "<p><a href='".base_url()."administrator/reset-password/$temp_pass'>Click here </a>if you want to reset your password,
+								if not, then ignore</p>";
+					$this->email->message($message);
 
-            if($this->email->send()){
-                $this->load->model('Administrator_Model');
-                if($this->Administrator_Model->temp_reset_password($temp_pass)){
-                    echo "check your email for instructions, thank you";
-                }
-            }
-            else{
-                echo "email was not sent, please contact your administrator";
-            }
+					if($this->email->send()){
+						$this->load->model('Administrator_Model');
+						if($this->Administrator_Model->temp_reset_password($temp_pass)){
+							echo "check your email for instructions, thank you";
+						}
+					}
+					else{
+						echo "email was not sent, please contact your administrator";
+					}
 
-        }else{
-            echo "your email is not in our database";
-        }
-}
-public function reset_password($temp_pass){
-    $this->load->model('Administrator_Model');
-    if($this->Administrator_Model->is_temp_pass_valid($temp_pass)){
-
-        $this->load->view('reset-password');
-       //once the user clicks submit $temp_pass is gone so therefore I can't catch the new password and   //associated with the user...
-
-    }else{
-        echo "the key is not valid";    
-    }
-
-}
-public function update_password(){
-    $this->load->library('form_validation');
-        $this->form_validation->set_rules('password', 'Password', 'required|trim');
-        $this->form_validation->set_rules('cpassword', 'Confirm Password', 'required|trim|matches[password]');
-            if($this->form_validation->run()){
-            echo "passwords match";
-            }else{
-            echo "passwords do not match";  
-            }
-}
-
-
-		
+				}else{
+					echo "your email is not in our database";
+				}
 	}
+		public function reset_password($temp_pass){
+			$this->load->model('Administrator_Model');
+			if($this->Administrator_Model->is_temp_pass_valid($temp_pass)){
+
+				$this->load->view('reset-password');
+			//once the user clicks submit $temp_pass is gone so therefore I can't catch the new password and   //associated with the user...
+
+			}else{
+				echo "the key is not valid";    
+			}
+
+		}
+		public function update_password(){
+			$this->load->library('form_validation');
+				$this->form_validation->set_rules('password', 'Password', 'required|trim');
+				$this->form_validation->set_rules('cpassword', 'Confirm Password', 'required|trim|matches[password]');
+					if($this->form_validation->run()){
+					echo "passwords match";
+					}else{
+					echo "passwords do not match";  
+					}
+		}
+
+		public function emailTemplates()
+		{
+			$this->load->model('email_model');
+			$searchText = $this->security->xss_clean($this->input->post('searchText'));
+            $tempType = $this->security->xss_clean($this->input->post('temp_type'));
+
+			$data['searchText'] = $searchText;
+
+			$data['tempType'] = $tempType;
+
+
+            $count = count($this->email_model->templateListing($searchText, '', '', $tempType));
+            
+			$data['tempList'] = $this->email_model->templateListing($searchText, '', '', $tempType);
+			$data['title'] = 'Email Template';
+			$this->load->view('administrator/header-script');
+			$this->load->view('administrator/header');
+			$this->load->view('administrator/header-bottom');
+			$this->load->view('administrator/email/list-template', $data);
+			$this->load->view('administrator/footer');
+		}
+		
+		public function addTemplate () {
+			$data['keyword'] = array(  'id' => 'Id',
+                           'first_name' => 'First Name',
+                           'last_name' => 'Last Name',
+                           'email' => 'Email',
+                           'date_register' => 'Date Register'
+            );
+			$data['title'] = 'New Template';
+			$this->load->view('administrator/header-script');
+			$this->load->view('administrator/header');
+			$this->load->view('administrator/header-bottom');
+			$this->load->view('administrator/email/new-template', $data);
+			$this->load->view('administrator/footer');
+		}
+
+		function addNewTemplate()
+		{
+				$this->load->library('form_validation');
+				$this->load->model('email_model');
+				$this->form_validation->set_rules('temp_name','Full Name','trim|required|max_length[128]');
+				$this->form_validation->set_rules('temp_content','Template Content','trim|required|min_length[10]');
+			   
+				if($this->form_validation->run() == FALSE)
+				{
+					$this->addTemplate();
+				}
+				else
+				{
+					$name = strtolower($this->security->xss_clean($this->input->post('temp_name')));
+					$type = strtolower($this->security->xss_clean($this->input->post('temp_type')));                
+					$content = $this->security->xss_clean($this->input->post('temp_content'));
+					$newTemp = array(
+									   'template_name'=>$name, 
+									   'template_type'=>$type,                                    
+									   'template_content'=>$content,
+										'created_at'=>date('Y-m-d H:i:s'),
+									   'is_active'=> '1'
+									);
 	
-
-
-
-
+					if($type == 2)
+					{
+						$newTemp['time_delay'] = $this->security->xss_clean($this->input->post('time_delay'));
+					}
+					$result = $this->email_model->addNewTemp($newTemp);
+					
+					if($result > 0)
+					{
+						$this->session->set_flashdata('success', 'New E-mail template created successfully');
+					}
+					else
+					{
+						$this->session->set_flashdata('error', 'Error, something went wrong!');
+					}
+					
+					redirect('administrator/new-template');
+				}
+		}
+	}
